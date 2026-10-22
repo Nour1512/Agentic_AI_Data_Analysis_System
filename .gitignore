@@ -1,0 +1,19 @@
+# Environment
+.env
+
+# Generated data (recreate anytime with generate_dataset.py)
+egyptian_ecommerce_csvs/
+egyptian_ecommerce_dataset.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Ignore old api file since we switched to streamlit
+api.py
+/outputs/
+/reports/

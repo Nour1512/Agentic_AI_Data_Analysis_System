@@ -1,0 +1,156 @@
+<style>
+#erd svg.erDiagram .divider path { stroke-opacity: 0.5; }
+#erd svg.erDiagram .row-rect-odd path,
+#erd svg.erDiagram .row-rect-odd rect,
+#erd svg.erDiagram .row-rect-even path,
+#erd svg.erDiagram .row-rect-even rect { stroke: none !important; }
+</style>
+<div id="erd" style="background:#ffffff; padding:8px;"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"anthropic-sans", sans-serif',
+  themeVariables: {
+    fontSize: '13px',
+    fontFamily: '"anthropic-sans", sans-serif',
+    lineColor: '#5f5e5a',
+    textColor: '#2c2c2a',
+    primaryColor: '#eeedfe',
+    primaryTextColor: '#26215c',
+    primaryBorderColor: '#534ab7',
+    secondaryColor: '#f1efe8',
+    tertiaryColor: '#ffffff',
+    attributeBackgroundColorOdd: '#f6f5ff',
+    attributeBackgroundColorEven: '#ffffff',
+  },
+});
+const src = `erDiagram
+  CUSTOMER_SEGMENTS ||--o{ CUSTOMERS : segments
+  CATEGORIES ||--o{ CATEGORIES : parent_of
+  CATEGORIES ||--o{ PRODUCTS : classifies
+  SUPPLIERS ||--o{ PRODUCTS : supplies
+  CUSTOMERS ||--o{ ORDERS : places
+  ORDERS ||--o{ ORDER_ITEMS : contains
+  PRODUCTS ||--o{ ORDER_ITEMS : appears_in
+  ORDERS ||--o{ PAYMENTS : paid_by
+
+  CUSTOMER_SEGMENTS {
+    int segment_id PK
+    string segment_name
+    string description
+    decimal min_lifetime_value
+    decimal max_lifetime_value
+  }
+  CATEGORIES {
+    int category_id PK
+    string category_name
+    string description
+    int parent_category_id FK
+  }
+  SUPPLIERS {
+    int supplier_id PK
+    string supplier_name
+    string contact_name
+    string email
+    string phone
+    string country
+    string city
+    string address
+    decimal supplier_rating
+    timestamp created_at
+  }
+  CUSTOMERS {
+    int customer_id PK
+    string first_name
+    string last_name
+    string email
+    string gender
+    date date_of_birth
+    timestamp registration_date
+    int segment_id FK
+    string city
+    string state
+    string country
+  }
+  PRODUCTS {
+    int product_id PK
+    string product_name
+    int category_id FK
+    int supplier_id FK
+    string brand
+    string description
+    decimal unit_price
+    decimal cost_price
+    decimal weight
+    int stock_quantity
+    int reorder_level
+    string product_status
+    timestamp created_at
+    timestamp updated_at
+  }
+  ORDERS {
+    int order_id PK
+    int customer_id FK
+    timestamp order_date
+    string order_status
+    string payment_status
+    decimal subtotal
+    decimal discount_amount
+    decimal tax_amount
+    decimal shipping_cost
+    decimal total_amount
+    string currency
+    string shipping_address
+    string billing_address
+  }
+  ORDER_ITEMS {
+    int order_item_id PK
+    int order_id FK
+    int product_id FK
+    int quantity
+    decimal unit_price
+    decimal discount_amount
+    decimal tax_amount
+    decimal line_total
+  }
+  PAYMENTS {
+    int payment_id PK
+    int order_id FK
+    timestamp payment_date
+    string payment_method
+    decimal amount
+    string currency
+    string payment_status
+    string transaction_reference
+    string failure_reason
+  }`;
+const { svg } = await mermaid.render('erd-svg', src);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg.erDiagram .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg.erDiagram .row-rect-odd path, #erd svg.erDiagram .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analytics Workspace — Agentic AI</title>
+    <meta name="description" content="AI-powered business analytics platform. Submit natural language questions and receive SQL analysis, KPI dashboards, charts, insights, and downloadable Word reports.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="workspace-bg">
+        <div class="particles-container">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <div class="app-container">
+
+        <!-- ============================================================
+             Sidebar Navigation
+             ============================================================ -->
+        <nav class="floating-nav">
+            <div class="nav-logo">✦ AI</div>
+            <div class="nav-items">
+                <a href="#" class="nav-item active" data-view="analyze" title="Analysis Workspace">
+                    <span class="nav-icon">◉</span> Analyze
+                </a>
+                <a href="#" class="nav-item" data-view="reports" title="Report History">
+                    <span class="nav-icon">▤</span> Reports
+                </a>
+            </div>
+            <div class="nav-bottom">
+                <a href="/docs" class="nav-item" title="API Docs" target="_blank">
+                    <span class="nav-icon">⚙</span> API Docs
+                </a>
+            </div>
+        </nav>
+
+        <!-- ============================================================
+             Main Workspace
+             ============================================================ -->
+        <main class="workspace-main">
+
+            <!-- Topbar -->
+            <header class="workspace-header">
+                <div class="header-title">AI ANALYTICS</div>
+                <div class="header-status">
+                    <span class="status-dot"></span> Connected
+                </div>
+            </header>
+
+            <div class="workspace-scroll">
+                <div class="workspace-content">
+
+                    <!-- =================================================
+                         ANALYSIS VIEW
+                         ================================================= -->
+                    <div id="analysis-view">
+
+                        <!-- Query Hero Panel -->
+                        <div class="floating-panel query-panel">
+                            <h2>✦ Ask your data anything</h2>
+                            <div class="query-input-wrapper">
+                                <textarea
+                                    id="queryInput"
+                                    placeholder="e.g. Show me monthly revenue trends for 2025 by product category…"
+                                    rows="3"
+                                    aria-label="Analysis question"
+                                ></textarea>
+                                <div class="query-actions">
+                                    <div class="query-hints">
+                                        <span class="hints-label">Try:</span>
+                                        <span class="suggestion-chip" data-query="Show me total sales by region for the last quarter">Regional sales</span>
+                                        <span class="suggestion-chip" data-query="Find the top 10 best-selling products by revenue">Top products</span>
+                                        <span class="suggestion-chip" data-query="Analyze monthly revenue trends for 2025 across all product categories">Revenue trends</span>
+                                        <span class="suggestion-chip" data-query="Show customer distribution by city">Customer distribution</span>
+                                    </div>
+                                    <button id="analyzeBtn" class="primary-btn" aria-label="Run analysis">
+                                        Analyze →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Developer Debug Panel (hidden by default) -->
+                        <div id="debugPanel" class="debug-panel hidden">
+                            <h4>Debug Information</h4>
+                            <pre id="debugContent"></pre>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="loadingState" class="floating-panel loading-panel hidden" aria-live="polite">
+                            <div class="loading-content">
+                                <div class="loading-spinner-ring"></div>
+                                <h3>✦ ANALYZING</h3>
+                                <p class="loading-steps" id="loadingStepText">Connecting to data pipeline…</p>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="errorState" class="floating-panel error-panel hidden" role="alert">
+                            <div class="error-icon">⚠</div>
+                            <h3>Analysis Failed</h3>
+                            <p id="errorMessage"></p>
+                            <button id="retryBtn" class="secondary-btn">Try Again</button>
+                        </div>
+
+                        <!-- =============================================
+                             Results Container
+                             ============================================= -->
+                        <div id="resultsContainer" class="results-flow hidden">
+
+                            <!-- Analysis Summary -->
+                            <div>
+                                <div class="section-header">
+                                    <h2>ANALYSIS</h2>
+                                    <hr>
+                                </div>
+                                <div class="floating-panel summary-panel" id="summaryPanel">
+                                    <p id="analysisSummaryText"></p>
+                                </div>
+                            </div>
+
+                            <!-- KPIs -->
+                            <div id="kpiSection">
+                                <div class="section-header">
+                                    <h2>KEY METRICS</h2>
+                                    <hr>
+                                </div>
+                                <div class="kpi-grid" id="kpiContainer"></div>
+                            </div>
+
+                            <!-- Charts -->
+                            <div id="chartsSection">
+                                <div class="section-header">
+                                    <h2>VISUAL ANALYSIS</h2>
+                                    <hr>
+                                </div>
+                                <div class="charts-flow" id="chartsContainer"></div>
+                            </div>
+
+                            <!-- AI Insights / Key Findings -->
+                            <div id="insightsSection">
+                                <div class="section-header">
+                                    <h2>AI INSIGHTS</h2>
+                                    <hr>
+                                </div>
+                                <div class="insights-grid" id="insightsContainer"></div>
+                            </div>
+
+                            <!-- Report Panel -->
+                            <div id="reportSection">
+                                <div class="section-header">
+                                    <h2>REPORT</h2>
+                                    <hr>
+                                </div>
+                                <div class="floating-panel report-panel" id="reportPanel">
+                                    <div class="report-card">
+                                        <div class="report-info">
+                                            <div class="report-title">Analytical Report</div>
+                                            <div class="report-meta" id="reportMetaText">Generated successfully</div>
+                                        </div>
+                                        <div class="report-actions">
+                                            <button class="secondary-btn" id="previewReportBtn">Preview</button>
+                                            <button class="primary-btn" id="downloadReportBtn">⬇ Download Report</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Table -->
+                            <div id="dataSection">
+                                <div class="section-header">
+                                    <h2>DATA</h2>
+                                    <hr>
+                                </div>
+                                <div class="floating-panel data-panel collapsible">
+                                    <div class="panel-header toggle-collapse">
+                                        <h3>▸ Retrieved Data · <span id="dataRowCount">0</span> rows</h3>
+                                    </div>
+                                    <div class="panel-content hidden">
+                                        <div class="table-actions">
+                                            <input type="text" placeholder="Search rows…" class="table-search" aria-label="Search table">
+                                        </div>
+                                        <div class="table-wrapper">
+                                            <table id="dataTable">
+                                                <thead id="dataHead"></thead>
+                                                <tbody id="dataBody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div><!-- End #resultsContainer -->
+                    </div><!-- End #analysis-view -->
+
+
+                    <!-- =================================================
+                         REPORTS HISTORY VIEW
+                         ================================================= -->
+                    <div id="reports-view" class="hidden">
+                        <div class="floating-panel reports-view-panel">
+                            <div class="reports-view-header">
+                                <h2>▤ Report History</h2>
+                                <p class="reports-view-subtitle">All previously generated analyses and downloadable reports.</p>
+                            </div>
+                        </div>
+                        <div id="reportsListContainer" class="reports-list-container"></div>
+                    </div><!-- End #reports-view -->
+
+                </div><!-- End .workspace-content -->
+            </div><!-- End .workspace-scroll -->
+
+        </main>
+    </div><!-- End .app-container -->
+
+    <!-- Report HTML Preview Modal -->
+    <div id="reportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Report Preview">
+        <div class="report-document-container">
+            <div class="report-toolbar">
+                <div class="report-toolbar-title">
+                    <span class="icon">📄</span> Report Preview
+                </div>
+                <div class="report-toolbar-actions">
+                    <button id="modalDownloadBtn" class="secondary-btn" title="Download .docx">Download DOCX</button>
+                    <button id="closeModalBtn" class="close-btn" aria-label="Close preview">&times;</button>
+                </div>
+            </div>
+            <div class="report-document-body">
+                <div class="report-preview-content" id="reportPreviewContent">
+                    <!-- Report HTML injected here by app.js -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script load order: api.js → charts.js → reports.js → app.js -->
+    <script src="/js/api.js"></script>
+    <script src="/js/charts.js"></script>
+    <script src="/js/reports.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

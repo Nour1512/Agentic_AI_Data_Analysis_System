@@ -1,0 +1,14 @@
+pandas
+pymongo>=4.6
+sqlalchemy>=2.0
+pyodbc>=5.0
+python-dotenv>=1.0
+fastapi
+uvicorn
+streamlit
+groq
+langchain-groq
+langgraph
+matplotlib
+plotly
+python-docx
